@@ -15,6 +15,8 @@ public class RabbitMQ {
 
     private static final Logger LOGGER = Logger.getLogger(RabbitMQ.class.getName());
     private static final List<JSONObject> jsonObjects = new LinkedList<>();
+    private static final String HOST = "raspijk.ddns.net";
+    private static final int PORT = 5672;
 
     public RabbitMQ(String queue) {
         subscribeToAMQP(queue);
@@ -22,16 +24,17 @@ public class RabbitMQ {
 
     public static void subscribeToAMQP(String queue) {
         Thread subscribeThread = new Thread(() -> {
+            LOGGER.info("Connecting to " + HOST + ":" + PORT + "...");
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("raspijk.ddns.net");
-            connectionFactory.setPort(5672);
+            connectionFactory.setHost(HOST);
+            connectionFactory.setPort(PORT);
             connectionFactory.setPassword("rabbit");
             connectionFactory.setUsername("rabbit");
             try {
                 Connection connection = connectionFactory.newConnection();
                 Channel channel = connection.createChannel();
                 channel.queueDeclare(queue, false, false, false, null);
-                channel.basicConsume(queue, new DefaultConsumer(channel) {
+                channel.basicConsume(queue, true, new DefaultConsumer(channel) {
                     @Override
                     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                         JSONParser jsonParser = new JSONParser();

@@ -34,6 +34,10 @@ public class Person implements Comparable<Person>, Serializable {
 		return this.debtors;
 	}
 
+	public Debtor getDebtor(String name){
+		return getDebtors().stream().filter(debtor -> debtor.getName().equals(name)).findFirst().get();
+	}
+
 	public void addDebtor(Debtor d) {
 		debtors.add(d);
 	}
