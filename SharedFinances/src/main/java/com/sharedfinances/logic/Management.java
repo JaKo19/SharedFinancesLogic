@@ -11,15 +11,12 @@ public class Management {
 
     private final ObservableList<Person> list;
     private double tamount;
-    private final MongoDBConnector db;
 
     public Management() {
-        db = new MongoDBConnector("raspijk.ddns.net", 27017, "sharedfinances", "persons");
         list = FXCollections.observableArrayList();
     }
 
     public void saveToDB() {
-        db.addDocuments(getList());
     }
 
     public void loadFromDB() {
@@ -36,6 +33,10 @@ public class Management {
 
     public void addPerson(Person p) {
         list.add(p);
+    }
+
+    public Person getPerson(String name) {
+        return list.stream().filter(person -> person.getName().equals(name)).findFirst().get();
     }
 
     public Person getPerson(int i) {

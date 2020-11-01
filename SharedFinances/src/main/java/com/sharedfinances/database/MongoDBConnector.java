@@ -9,28 +9,40 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MongoDBConnector {
 
+    private static final Logger LOGGER = Logger.getLogger(MongoDBConnector.class.getName());
+    private static MongoDBConnector mongoDBConnector;
     private final String collection;
     private final String database;
     private final int port;
     private final String host;
 
-    public MongoDBConnector(String host, int port, String database, String collection) {
+    private MongoDBConnector(String host, int port, String database, String collection) {
         this.collection = collection;
         this.database = database;
         this.host = host;
         this.port = port;
     }
 
-    public void deleteAll(MongoCollection<Document> collection) {
-        try {
-            BasicDBObject document = new BasicDBObject();
-            collection.deleteMany(document);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static void start(String host, int port, String database, String collection, List<Person> list) {
+        Thread thread = new Thread(() -> {
+            if (mongoDBConnector == null) {
+                mongoDBConnector = new MongoDBConnector(host, port, database, collection);
+            }
+            while (true) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    LOGGER.info("Interupt!");
+                }
+                mongoDBConnector.addDocuments(list);
+            }
+        });
+        thread.start();
     }
 
     public void addDocuments(List<Person> list) {
@@ -41,15 +53,24 @@ public class MongoDBConnector {
                 deleteAll(mongoCollection);
             }
             mongoCollection.insertMany(newDocuments(list));
+        } catch (Exception e) {
+            LOGGER.info("Failed to connect!");
         }
     }
 
+    public void deleteAll(MongoCollection<Document> collection) {
+        BasicDBObject document = new BasicDBObject();
+        collection.deleteMany(document);
+    }
+
     public List<Document> newDocuments(List<Person> list) {
-        List<Document> newdocs = new ArrayList<>();
+        List<Document> newDocuments = new ArrayList<>();
         for (Person p : list) {
             Document doc = new Document().append("name", p.getName()).append("amount", p.getAmount());
-            newdocs.add(doc);
+            newDocuments.add(doc);
         }
-        return newdocs;
+        return newDocuments;
     }
+
+
 }
