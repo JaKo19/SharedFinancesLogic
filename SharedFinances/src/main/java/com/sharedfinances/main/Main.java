@@ -29,6 +29,12 @@ public class Main {
                 p.addTotal(amount);
                 management.eliminate(p);
                 management.setPerson(p);
+                LOGGER.info("Successfully added Amount!");
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return;
             }
         }
     }
