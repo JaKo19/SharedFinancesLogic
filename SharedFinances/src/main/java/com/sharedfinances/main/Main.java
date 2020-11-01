@@ -21,91 +21,104 @@ public class Main {
         management.addPerson(new Person("Jannis")); //Test Data
         management.addPerson(new Person("Lea")); //Test Data
 
-        try {
-            addAmount();
-            extraAmount();
-            pay();
-        } catch (InterruptedException e) {
-            LOGGER.info("Interrupt!");
-        }
+        Thread t1 = new Thread(Main::addAmount);
+        Thread t2 = new Thread(Main::extraAmount);
+        Thread t3 = new Thread(Main::pay);
 
+        t1.start();
+        t2.start();
     }
 
-    public static void addAmount() throws InterruptedException {
+    public static void addAmount() {
         RabbitMQ rabbitMQ = new RabbitMQ("addamount");
         List<JSONObject> messages;
         while (true) {
             messages = rabbitMQ.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
-                    Thread.sleep(1000);
                     String name = (String) message.get("name");
                     long amount = (long) message.get("amount");
-                    Person p = management.getPerson(name);
-                    management.calculateAmount(p, amount, management.getSize());
-                    p.addTotal(amount);
-                    management.eliminate(p);
-                    management.setPerson(p);
-                    LOGGER.info("Successfully added Amount!");
+                    synchronized (management) {
+                        Person p = management.getPerson(name);
+                        management.calculateAmount(p, amount, management.getSize());
+                        p.addTotal(amount);
+                        management.eliminate(p);
+                        management.setPerson(p);
+                        LOGGER.info("Successfully added Amount!");
+                    }
                 }
             }
-            Thread.sleep(10000);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                LOGGER.info("Interrupted addAmount Thread");
+            }
             LOGGER.info("Waiting for Messages...");
         }
     }
 
-    public static void extraAmount() throws InterruptedException {
+    public static void extraAmount() {
         RabbitMQ rabbitMQ = new RabbitMQ("extra");
         List<JSONObject> messages;
         while (true) {
             messages = rabbitMQ.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
-                    Thread.sleep(1000);
                     String name = (String) message.get("name");
                     long amount = (long) message.get("amount");
-                    Person p = management.getPerson("Jannis");//ToDo
-                    Debtor d = p.getDebtor(name);
-                    d.addExtraDebts(amount);
-                    p.addTotal(amount);
-                    management.eliminate(p);
-                    management.setPerson(p);
+                    synchronized (management) {
+                        Person p = management.getPerson("Jannis");//ToDo
+                        Debtor d = p.getDebtor(name);
+                        d.addExtraDebts(amount);
+                        p.addTotal(amount);
+                        management.eliminate(p);
+                        management.setPerson(p);
+                    }
                 }
             }
-            Thread.sleep(10000);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                LOGGER.info("Interrupted extraAmount Thread");
+            }
             LOGGER.info("Waiting for Messages...");
         }
     }
 
-    public static void pay() throws InterruptedException {
+    public static void pay() {
         RabbitMQ rabbitMQ = new RabbitMQ("extra");
         List<JSONObject> messages;
         while (true) {
             messages = rabbitMQ.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
-                    Thread.sleep(1000);
                     String name = (String) message.get("name");
                     long amount = (long) message.get("amount");
-                    Person p = management.getPerson("Jannis");//ToDo
-                    Debtor d = p.getDebtor(name);
-                    int i = 0;
-                    int z;
-                    while (!d.getName().equals(management.getPerson(i).getName()))
-                        i++;
-                    Person pp = management.getPerson(i);
-                    if (management.getList().indexOf(p) < i)
-                        z = (i - 1);
-                    else
-                        z = i;
-                    Debtor dd = pp.getDebtors().get(z);
-                    dd.addExtraDebts(-amount);
-                    management.eliminate(pp);
-                    management.totalDebts(p);
-                    management.setPerson(pp);
+                    synchronized (management) {
+                        Person p = management.getPerson("Jannis");//ToDo
+                        Debtor d = p.getDebtor(name);
+                        int i = 0;
+                        int z;
+                        while (!d.getName().equals(management.getPerson(i).getName()))
+                            i++;
+                        Person pp = management.getPerson(i);
+                        if (management.getList().indexOf(p) < i)
+                            z = (i - 1);
+                        else
+                            z = i;
+                        Debtor dd = pp.getDebtors().get(z);
+                        dd.addExtraDebts(-amount);
+                        management.eliminate(pp);
+                        management.totalDebts(p);
+                        management.setPerson(pp);
+                    }
                 }
             }
-            Thread.sleep(10000);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                LOGGER.info("Interrupted pay Thread");
+            }
             LOGGER.info("Waiting for Messages...");
         }
     }

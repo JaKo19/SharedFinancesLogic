@@ -23,36 +23,33 @@ public class RabbitMQ {
     }
 
     public static void subscribeToAMQP(String queue) {
-        Thread subscribeThread = new Thread(() -> {
-            LOGGER.info("Connecting to " + HOST + ":" + PORT + "...");
-            ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost(HOST);
-            connectionFactory.setPort(PORT);
-            connectionFactory.setPassword("rabbit");
-            connectionFactory.setUsername("rabbit");
-            try {
-                Connection connection = connectionFactory.newConnection();
-                Channel channel = connection.createChannel();
-                channel.queueDeclare(queue, false, false, false, null);
-                channel.basicConsume(queue, true, new DefaultConsumer(channel) {
-                    @Override
-                    public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-                        JSONParser jsonParser = new JSONParser();
-                        String message = new String(body, StandardCharsets.UTF_8);
-                        try {
-                            synchronized (jsonObjects) {
-                                jsonObjects.add((JSONObject) jsonParser.parse(message));
-                            }
-                        } catch (ParseException e) {
-                            LOGGER.info("Parsing failed!");
+        LOGGER.info("Connecting to " + HOST + ":" + PORT + "...");
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost(HOST);
+        connectionFactory.setPort(PORT);
+        connectionFactory.setPassword("rabbit");
+        connectionFactory.setUsername("rabbit");
+        try {
+            Connection connection = connectionFactory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.queueDeclare(queue, false, false, false, null);
+            channel.basicConsume(queue, true, new DefaultConsumer(channel) {
+                @Override
+                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                    JSONParser jsonParser = new JSONParser();
+                    String message = new String(body, StandardCharsets.UTF_8);
+                    try {
+                        synchronized (jsonObjects) {
+                            jsonObjects.add((JSONObject) jsonParser.parse(message));
                         }
+                    } catch (ParseException e) {
+                        LOGGER.info("Parsing failed!");
                     }
-                });
-            } catch (Exception e) {
-                LOGGER.info("Failed to connect!");
-            }
-        });
-        subscribeThread.start();
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.info("Failed to connect!");
+        }
     }
 
     public List<JSONObject> getMessages() {
