@@ -32,22 +32,20 @@ public class Main {
     }
 
     public static void addAmount() {
-        RabbitMQ rabbitMQ = new RabbitMQ("addamount");
+        RabbitMQ rabbit1 = new RabbitMQ("addamount");
         List<JSONObject> messages;
         while (true) {
-            messages = rabbitMQ.getMessages();
+            messages = rabbit1.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
                     String name = (String) message.get("name");
                     long amount = (long) message.get("amount");
-
                     Person p = management.getPerson(name);
                     management.calculateAmount(p, amount, management.getSize());
                     p.addTotal(amount);
                     management.eliminate(p);
                     management.setPerson(p);
                     LOGGER.info("Successfully added Amount!");
-
                 }
                 messages.clear();
             }
@@ -61,10 +59,10 @@ public class Main {
     }
 
     public static void extraAmount() {
-        RabbitMQ rabbitMQ = new RabbitMQ("extra");
+        RabbitMQ rabbit2 = new RabbitMQ("extra");
         List<JSONObject> messages;
         while (true) {
-            messages = rabbitMQ.getMessages();
+            messages = rabbit2.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
                     String name = (String) message.get("name");
@@ -88,10 +86,10 @@ public class Main {
     }
 
     public static void pay() {
-        RabbitMQ rabbitMQ = new RabbitMQ("extra");
+        RabbitMQ rabbit3 = new RabbitMQ("extra");
         List<JSONObject> messages;
         while (true) {
-            messages = rabbitMQ.getMessages();
+            messages = rabbit3.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
                     String name = (String) message.get("name");

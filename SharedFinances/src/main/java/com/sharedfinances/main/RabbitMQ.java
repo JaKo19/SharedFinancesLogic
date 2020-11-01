@@ -14,15 +14,16 @@ import java.util.logging.Logger;
 public class RabbitMQ {
 
     private static final Logger LOGGER = Logger.getLogger(RabbitMQ.class.getName());
-    private static final List<JSONObject> jsonObjects = new LinkedList<>();
     private static final String HOST = "raspijk.ddns.net";
     private static final int PORT = 5672;
+    private final List<JSONObject> jsonObjects;
 
     public RabbitMQ(String queue) {
         subscribeToAMQP(queue);
+        jsonObjects = new LinkedList<>();
     }
 
-    public static void subscribeToAMQP(String queue) {
+    public void subscribeToAMQP(String queue) {
         LOGGER.info("Connecting to " + HOST + ":" + PORT + "...");
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(HOST);
@@ -35,7 +36,7 @@ public class RabbitMQ {
             channel.queueDeclare(queue, false, false, false, null);
             channel.basicConsume(queue, true, new DefaultConsumer(channel) {
                 @Override
-                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
                     JSONParser jsonParser = new JSONParser();
                     String message = new String(body, StandardCharsets.UTF_8);
                     try {
