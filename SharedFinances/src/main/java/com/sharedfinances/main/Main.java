@@ -12,16 +12,20 @@ public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
-        LOGGER.info("Starting MongoDB-Connector...");
-        MongoDBConnector.start("raspijk.ddns.net", 27017, "sharedfinances", "persons", null);
+        //LOGGER.info("Starting MongoDB-Connector...");
+        //MongoDBConnector.start("raspijk.ddns.net", 27017, "sharedfinances", "persons", null);
 
         RabbitMQ rabbitMQ = new RabbitMQ("addamount");
-
         Management management = new Management();
         //Test Data
         management.addPerson(new Person("Jannis"));
         while (true) {
             for (JSONObject message : rabbitMQ.getMessages()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
                 String name = (String) message.get("name");
                 float amount = (float) message.get("amount");
                 Person p = management.getPerson(name);
@@ -32,7 +36,7 @@ public class Main {
                 LOGGER.info("Successfully added Amount!");
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 return;
             }
