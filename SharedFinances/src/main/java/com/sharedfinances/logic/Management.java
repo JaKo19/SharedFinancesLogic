@@ -1,19 +1,16 @@
 package main.java.com.sharedfinances.logic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import main.java.com.sharedfinances.database.MongoDBConnector;
-
 public class Management {
 
-    private final ObservableList<Person> list;
+    private final List<Person> list;
     private double tamount;
 
     public Management() {
-        list = FXCollections.observableArrayList();
+        list = new ArrayList<>();
     }
 
     public void saveToDB() {
@@ -23,7 +20,7 @@ public class Management {
 
     }
 
-    public ObservableList<Person> getList() {
+    public List<Person> getList() {
         return list;
     }
 

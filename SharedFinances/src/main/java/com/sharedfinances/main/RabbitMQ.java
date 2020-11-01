@@ -17,10 +17,10 @@ public class RabbitMQ {
     private static final List<JSONObject> jsonObjects = new LinkedList<>();
 
     public RabbitMQ(String queue) {
-        subsribeToAMQP(queue);
+        subscribeToAMQP(queue);
     }
 
-    public static void subsribeToAMQP(String queue) {
+    public static void subscribeToAMQP(String queue) {
         Thread subscribeThread = new Thread(() -> {
             ConnectionFactory connectionFactory = new ConnectionFactory();
             connectionFactory.setHost("raspijk.ddns.net");
