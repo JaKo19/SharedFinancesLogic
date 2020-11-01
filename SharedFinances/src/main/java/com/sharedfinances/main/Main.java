@@ -73,6 +73,7 @@ public class Main {
                     p.addTotal(amount);
                     management.eliminate(p);
                     management.setPerson(p);
+                    LOGGER.info("Successfully added Extra Amount!");
                 }
                 messages.clear();
             }
