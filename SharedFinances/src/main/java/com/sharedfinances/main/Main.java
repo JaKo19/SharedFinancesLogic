@@ -27,7 +27,7 @@ public class Main {
                     return;
                 }
                 String name = (String) message.get("name");
-                float amount = (float) message.get("amount");
+                long amount = (long) message.get("amount");
                 Person p = management.getPerson(name);
                 management.calculateAmount(p, amount, management.getSize());
                 p.addTotal(amount);
