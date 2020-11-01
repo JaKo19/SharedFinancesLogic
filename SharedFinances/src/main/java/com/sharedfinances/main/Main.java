@@ -15,11 +15,13 @@ public class Main {
     private static final Management management = new Management();
 
     public static void main(String[] args) {
-        //LOGGER.info("Starting MongoDB-Connector...");
-        //MongoDBConnector.start("raspijk.ddns.net", 27017, "sharedfinances", "persons", null);
-
-        management.addPerson(new Person("Jannis")); //Test Data
-        management.addPerson(new Person("Lea")); //Test Data
+        //Test Data
+        Person p1 = new Person("Jannis");
+        Person p2 = new Person("Jonathan");
+        p1.addDebtor(new Debtor("Jonathan"));
+        p2.addDebtor(new Debtor("Jannis"));
+        management.addPerson(p1);
+        management.addPerson(p2);
 
         Thread t1 = new Thread(Main::addAmount);
         Thread t2 = new Thread(Main::extraAmount);
@@ -47,6 +49,7 @@ public class Main {
                         LOGGER.info("Successfully added Amount!");
                     }
                 }
+                messages.clear();
             }
             try {
                 Thread.sleep(10000);
@@ -75,6 +78,7 @@ public class Main {
                         management.setPerson(p);
                     }
                 }
+                messages.clear();
             }
             try {
                 Thread.sleep(10000);
@@ -113,6 +117,7 @@ public class Main {
                         management.setPerson(pp);
                     }
                 }
+                messages.clear();
             }
             try {
                 Thread.sleep(10000);
