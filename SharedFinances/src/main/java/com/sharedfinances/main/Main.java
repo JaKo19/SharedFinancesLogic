@@ -40,14 +40,14 @@ public class Main {
                 for (JSONObject message : messages) {
                     String name = (String) message.get("name");
                     long amount = (long) message.get("amount");
-                    synchronized (management) {
-                        Person p = management.getPerson(name);
-                        management.calculateAmount(p, amount, management.getSize());
-                        p.addTotal(amount);
-                        management.eliminate(p);
-                        management.setPerson(p);
-                        LOGGER.info("Successfully added Amount!");
-                    }
+
+                    Person p = management.getPerson(name);
+                    management.calculateAmount(p, amount, management.getSize());
+                    p.addTotal(amount);
+                    management.eliminate(p);
+                    management.setPerson(p);
+                    LOGGER.info("Successfully added Amount!");
+
                 }
                 messages.clear();
             }
@@ -69,14 +69,12 @@ public class Main {
                 for (JSONObject message : messages) {
                     String name = (String) message.get("name");
                     long amount = (long) message.get("amount");
-                    synchronized (management) {
-                        Person p = management.getPerson("Jannis");//ToDo
-                        Debtor d = p.getDebtor(name);
-                        d.addExtraDebts(amount);
-                        p.addTotal(amount);
-                        management.eliminate(p);
-                        management.setPerson(p);
-                    }
+                    Person p = management.getPerson("Jannis");//ToDo
+                    Debtor d = p.getDebtor(name);
+                    d.addExtraDebts(amount);
+                    p.addTotal(amount);
+                    management.eliminate(p);
+                    management.setPerson(p);
                 }
                 messages.clear();
             }
@@ -98,24 +96,22 @@ public class Main {
                 for (JSONObject message : messages) {
                     String name = (String) message.get("name");
                     long amount = (long) message.get("amount");
-                    synchronized (management) {
-                        Person p = management.getPerson("Jannis");//ToDo
-                        Debtor d = p.getDebtor(name);
-                        int i = 0;
-                        int z;
-                        while (!d.getName().equals(management.getPerson(i).getName()))
-                            i++;
-                        Person pp = management.getPerson(i);
-                        if (management.getList().indexOf(p) < i)
-                            z = (i - 1);
-                        else
-                            z = i;
-                        Debtor dd = pp.getDebtors().get(z);
-                        dd.addExtraDebts(-amount);
-                        management.eliminate(pp);
-                        management.totalDebts(p);
-                        management.setPerson(pp);
-                    }
+                    Person p = management.getPerson("Jannis");//ToDo
+                    Debtor d = p.getDebtor(name);
+                    int i = 0;
+                    int z;
+                    while (!d.getName().equals(management.getPerson(i).getName()))
+                        i++;
+                    Person pp = management.getPerson(i);
+                    if (management.getList().indexOf(p) < i)
+                        z = (i - 1);
+                    else
+                        z = i;
+                    Debtor dd = pp.getDebtors().get(z);
+                    dd.addExtraDebts(-amount);
+                    management.eliminate(pp);
+                    management.totalDebts(p);
+                    management.setPerson(pp);
                 }
                 messages.clear();
             }
