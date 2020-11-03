@@ -7,7 +7,6 @@ import java.util.List;
 public class Person implements Comparable<Person>, Serializable {
 
 	private static final long serialVersionUID = -3342841278243320276L;
-	public static final int MAX_NAMELENGTH = 10;
 	private String name;
 	private double amount;
 	private double total;

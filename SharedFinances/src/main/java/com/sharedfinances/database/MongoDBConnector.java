@@ -7,6 +7,7 @@ import com.mongodb.client.MongoDatabase;
 import main.java.com.sharedfinances.logic.Person;
 import org.bson.Document;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -66,7 +67,7 @@ public class MongoDBConnector {
     public List<Document> newDocuments(List<Person> list) {
         List<Document> newDocuments = new ArrayList<>();
         for (Person p : list) {
-            Document doc = new Document().append("name", p.getName()).append("amount", p.getAmount());
+            Document doc = new Document().append("name", p.getName()).append("amount", p.getAmount()).append("total", p.getTotal()).append("debtorslist", p.getDebtors());
             newDocuments.add(doc);
         }
         return newDocuments;

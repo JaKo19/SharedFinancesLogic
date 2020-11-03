@@ -1,14 +1,18 @@
-package main.java.com.sharedfinances.main;
+package main.java.com.sharedfinances.broker;
 
 import com.rabbitmq.client.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 public class RabbitMQ {
@@ -16,14 +20,16 @@ public class RabbitMQ {
     private static final Logger LOGGER = Logger.getLogger(RabbitMQ.class.getName());
     private static final String HOST = "raspijk.ddns.net";
     private static final int PORT = 5672;
+    private static final String LISTDATA_QUEUE = "listdata";
     private final List<JSONObject> jsonObjects;
+    private final String queue;
 
     public RabbitMQ(String queue) {
-        subscribeToAMQP(queue);
+        this.queue = queue;
         jsonObjects = new LinkedList<>();
     }
 
-    public void subscribeToAMQP(String queue) {
+    public void subscribeToAMQP() {
         LOGGER.info("Connecting to " + HOST + ":" + PORT + "...");
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(HOST);
@@ -57,6 +63,24 @@ public class RabbitMQ {
         synchronized (jsonObjects) {
             return jsonObjects;
         }
+    }
+
+    public void publishToAMQP() {
+        Thread publishThread = new Thread(() -> {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost("raspijk.ddns.net");
+            connectionFactory.setPort(5672);
+            connectionFactory.setPassword("rabbit");
+            connectionFactory.setUsername("rabbit");
+            try (Connection connection = connectionFactory.newConnection()) {
+                Channel channel = connection.createChannel();
+                channel.queueDeclare(LISTDATA_QUEUE, false, false, false, null);
+                channel.basicPublish("", LISTDATA_QUEUE, null, Files.readAllBytes(Paths.get(".\\src\\main\\resources\\List.ser")));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        publishThread.start();
     }
 
 }

@@ -1,6 +1,7 @@
 package main.java.com.sharedfinances.main;
 
-import main.java.com.sharedfinances.database.MongoDBConnector;
+import main.java.com.sharedfinances.broker.RabbitMQ;
+import main.java.com.sharedfinances.database.PersistenceException;
 import main.java.com.sharedfinances.logic.Debtor;
 import main.java.com.sharedfinances.logic.Management;
 import main.java.com.sharedfinances.logic.Person;
@@ -33,6 +34,7 @@ public class Main {
 
     public static void addAmount() {
         RabbitMQ rabbit1 = new RabbitMQ("addamount");
+        rabbit1.subscribeToAMQP();
         List<JSONObject> messages;
         while (true) {
             messages = rabbit1.getMessages();
@@ -45,6 +47,14 @@ public class Main {
                     p.addTotal(amount);
                     management.eliminate(p);
                     management.setPerson(p);
+
+                    //Serialize and Send to Broker
+                    try {
+                        management.saveList();
+                    } catch (PersistenceException e) {
+                        e.printStackTrace();
+                    }
+                    rabbit1.publishToAMQP();
                     LOGGER.info("Successfully added Amount!");
                 }
                 messages.clear();
@@ -53,13 +63,14 @@ public class Main {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
                 LOGGER.info("Interrupted addAmount Thread");
+                return;
             }
-            LOGGER.info("Waiting for Messages...");
         }
     }
 
     public static void extraAmount() {
         RabbitMQ rabbit2 = new RabbitMQ("extra");
+        rabbit2.subscribeToAMQP();
         List<JSONObject> messages;
         while (true) {
             messages = rabbit2.getMessages();
@@ -73,6 +84,14 @@ public class Main {
                     p.addTotal(amount);
                     management.eliminate(p);
                     management.setPerson(p);
+
+                    //Serialize and Send to Broker
+                    try {
+                        management.saveList();
+                    } catch (PersistenceException e) {
+                        e.printStackTrace();
+                    }
+                    rabbit2.publishToAMQP();
                     LOGGER.info("Successfully added Extra Amount!");
                 }
                 messages.clear();
@@ -81,13 +100,14 @@ public class Main {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
                 LOGGER.info("Interrupted extraAmount Thread");
+                return;
             }
-            LOGGER.info("Waiting for Messages...");
         }
     }
 
     public static void pay() {
         RabbitMQ rabbit3 = new RabbitMQ("extra");
+        rabbit3.subscribeToAMQP();
         List<JSONObject> messages;
         while (true) {
             messages = rabbit3.getMessages();
@@ -111,6 +131,14 @@ public class Main {
                     management.eliminate(pp);
                     management.totalDebts(p);
                     management.setPerson(pp);
+
+                    //Serialize and Send to Broker
+                    try {
+                        management.saveList();
+                    } catch (PersistenceException e) {
+                        e.printStackTrace();
+                    }
+                    rabbit3.publishToAMQP();
                 }
                 messages.clear();
             }

@@ -1,5 +1,8 @@
 package main.java.com.sharedfinances.logic;
 
+import main.java.com.sharedfinances.database.ListSerialize;
+import main.java.com.sharedfinances.database.PersistenceException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,16 +11,15 @@ public class Management {
 
     private final List<Person> list;
     private double tamount;
+    private final ListSerialize serialization;
 
     public Management() {
         list = new ArrayList<>();
+        serialization = new ListSerialize();
     }
 
-    public void saveToDB() {
-    }
-
-    public void loadFromDB() {
-
+    public void saveList() throws PersistenceException {
+        serialization.save(list);
     }
 
     public List<Person> getList() {
