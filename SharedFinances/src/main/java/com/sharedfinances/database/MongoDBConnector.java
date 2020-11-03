@@ -7,10 +7,8 @@ import com.mongodb.client.MongoDatabase;
 import main.java.com.sharedfinances.logic.Person;
 import org.bson.Document;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MongoDBConnector {
