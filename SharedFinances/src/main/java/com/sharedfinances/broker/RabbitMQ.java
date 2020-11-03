@@ -62,7 +62,7 @@ public class RabbitMQ {
         }
     }
 
-    public void publishToAMQP() {
+    public void publishToAMQP(byte[] message) {
         Thread publishThread = new Thread(() -> {
             ConnectionFactory connectionFactory = new ConnectionFactory();
             connectionFactory.setHost("raspijk.ddns.net");
@@ -72,7 +72,7 @@ public class RabbitMQ {
             try (Connection connection = connectionFactory.newConnection()) {
                 Channel channel = connection.createChannel();
                 channel.queueDeclare(LISTDATA_QUEUE, false, false, false, null);
-                channel.basicPublish("", LISTDATA_QUEUE, null, Files.readAllBytes(Paths.get(".\\src\\main\\resources\\List.ser")));
+                channel.basicPublish("", LISTDATA_QUEUE, null, message);
             } catch (Exception e) {
                 e.printStackTrace();
             }

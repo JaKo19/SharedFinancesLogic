@@ -11,15 +11,13 @@ public class Management {
 
     private final List<Person> list;
     private double tamount;
-    private final ListSerialize serialization;
 
     public Management() {
         list = new ArrayList<>();
-        serialization = new ListSerialize();
     }
 
-    public void saveList() throws PersistenceException {
-        serialization.save(list);
+    public byte[] saveList() throws PersistenceException {
+        return ListSerialize.save(list);
     }
 
     public List<Person> getList() {

@@ -50,11 +50,11 @@ public class Main {
 
                     //Serialize and Send to Broker
                     try {
-                        management.saveList();
+                        rabbit1.publishToAMQP(management.saveList());
                     } catch (PersistenceException e) {
                         e.printStackTrace();
                     }
-                    rabbit1.publishToAMQP();
+
                     LOGGER.info("Successfully added Amount!");
                 }
                 messages.clear();
@@ -87,11 +87,11 @@ public class Main {
 
                     //Serialize and Send to Broker
                     try {
-                        management.saveList();
+                        rabbit2.publishToAMQP(management.saveList());
                     } catch (PersistenceException e) {
                         e.printStackTrace();
                     }
-                    rabbit2.publishToAMQP();
+
                     LOGGER.info("Successfully added Extra Amount!");
                 }
                 messages.clear();
@@ -134,11 +134,11 @@ public class Main {
 
                     //Serialize and Send to Broker
                     try {
-                        management.saveList();
+                        rabbit3.publishToAMQP(management.saveList());
                     } catch (PersistenceException e) {
                         e.printStackTrace();
                     }
-                    rabbit3.publishToAMQP();
+
                 }
                 messages.clear();
             }
