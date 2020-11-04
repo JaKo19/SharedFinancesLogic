@@ -16,7 +16,7 @@ public class Management {
         list = new ArrayList<>();
     }
 
-    public byte[] saveList() throws PersistenceException {
+    public String saveList() throws PersistenceException {
         return ListSerialize.save(list);
     }
 

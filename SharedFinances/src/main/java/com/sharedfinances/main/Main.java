@@ -24,6 +24,7 @@ public class Main {
         management.addPerson(p1);
         management.addPerson(p2);
 
+
         Thread t1 = new Thread(Main::addAmount);
         Thread t2 = new Thread(Main::extraAmount);
         Thread t3 = new Thread(Main::pay);

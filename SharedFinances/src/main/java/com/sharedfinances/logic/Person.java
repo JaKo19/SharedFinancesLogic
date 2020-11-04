@@ -4,9 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Person implements Comparable<Person>, Serializable {
+public class Person implements Comparable<Person> {
 
-	private static final long serialVersionUID = -3342841278243320276L;
 	private String name;
 	private double amount;
 	private double total;
