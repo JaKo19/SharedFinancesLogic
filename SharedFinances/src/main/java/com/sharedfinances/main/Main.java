@@ -24,7 +24,6 @@ public class Main {
         management.addPerson(p1);
         management.addPerson(p2);
 
-
         Thread t1 = new Thread(Main::addAmount);
         Thread t2 = new Thread(Main::extraAmount);
         Thread t3 = new Thread(Main::pay);
@@ -50,12 +49,7 @@ public class Main {
                     management.setPerson(p);
 
                     //Serialize and Send to Broker
-                    try {
-                        rabbit1.publishToAMQP(management.saveList());
-                    } catch (PersistenceException e) {
-                        e.printStackTrace();
-                    }
-
+                    rabbit1.publishToAMQP(management.saveList());
                     LOGGER.info("Successfully added Amount!");
                 }
                 messages.clear();
@@ -87,12 +81,7 @@ public class Main {
                     management.setPerson(p);
 
                     //Serialize and Send to Broker
-                    try {
-                        rabbit2.publishToAMQP(management.saveList());
-                    } catch (PersistenceException e) {
-                        e.printStackTrace();
-                    }
-
+                    rabbit2.publishToAMQP(management.saveList());
                     LOGGER.info("Successfully added Extra Amount!");
                 }
                 messages.clear();
@@ -134,12 +123,7 @@ public class Main {
                     management.setPerson(pp);
 
                     //Serialize and Send to Broker
-                    try {
-                        rabbit3.publishToAMQP(management.saveList());
-                    } catch (PersistenceException e) {
-                        e.printStackTrace();
-                    }
-
+                    rabbit3.publishToAMQP(management.saveList());
                 }
                 messages.clear();
             }
