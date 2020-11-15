@@ -59,23 +59,4 @@ public class RabbitMQ {
             return jsonObjects;
         }
     }
-
-    public void publishToAMQP(String json) {
-        Thread publishThread = new Thread(() -> {
-            ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost(HOST);
-            connectionFactory.setPort(PORT);
-            connectionFactory.setPassword("rabbit");
-            connectionFactory.setUsername("rabbit");
-            try (Connection connection = connectionFactory.newConnection()) {
-                Channel channel = connection.createChannel();
-                channel.queueDeclare(LISTDATA_QUEUE, false, false, false, null);
-                channel.basicPublish("", LISTDATA_QUEUE, null, json.getBytes());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        publishThread.start();
-    }
-
 }

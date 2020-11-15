@@ -1,13 +1,10 @@
 package main.java.com.sharedfinances.logic;
 
-import java.io.Serializable;
+public class Debtor {
 
-public class Debtor implements Serializable {
-
-    private static final long serialVersionUID = -1776416725477627327L;
+    private final String name;
     private double debts;
     private double extra;
-    private final String name;
 
     public Debtor(String name) {
         this.name = name;

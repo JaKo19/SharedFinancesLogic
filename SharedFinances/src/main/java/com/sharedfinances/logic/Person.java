@@ -10,10 +10,28 @@ public class Person implements Comparable<Person> {
 	private double amount;
 	private double total;
 	private List<Debtor> debtors;
+	private String email;
+	private String passwort;
 
 	public Person(String name) {
 		this.name = name;
 		debtors = new ArrayList<>();
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPasswort() {
+		return passwort;
+	}
+
+	public void setPasswort(String passwort) {
+		this.passwort = passwort;
 	}
 
 	public String getName() {

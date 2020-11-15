@@ -1,29 +1,31 @@
 package main.java.com.sharedfinances.main;
 
+import com.google.gson.Gson;
 import main.java.com.sharedfinances.broker.RabbitMQ;
-import main.java.com.sharedfinances.database.PersistenceException;
 import main.java.com.sharedfinances.logic.Debtor;
 import main.java.com.sharedfinances.logic.Management;
 import main.java.com.sharedfinances.logic.Person;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class Main {
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
     private static final Management management = new Management();
+    private static final int INTERVAL = 5;
 
     public static void main(String[] args) {
-        //Test Data
-        Person p1 = new Person("Jannis");
-        Person p2 = new Person("Jonathan");
-        p1.addDebtor(new Debtor("Jonathan"));
-        p2.addDebtor(new Debtor("Jannis"));
-        management.addPerson(p1);
-        management.addPerson(p2);
-
         Thread t1 = new Thread(Main::addAmount);
         Thread t2 = new Thread(Main::extraAmount);
         Thread t3 = new Thread(Main::pay);
@@ -37,6 +39,13 @@ public class Main {
         rabbit1.subscribeToAMQP();
         List<JSONObject> messages;
         while (true) {
+            //Get Json Data from the Rest API
+            try {
+                management.setList(getFromRestAPI());
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+            }
+            //Button message from RabbitMQ
             messages = rabbit1.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
@@ -47,18 +56,22 @@ public class Main {
                     p.addTotal(amount);
                     management.eliminate(p);
                     management.setPerson(p);
+                    messages.clear();
 
-                    //Serialize and Send to Broker
-                    rabbit1.publishToAMQP(management.saveList());
-                    LOGGER.info("Successfully added Amount!");
+                    //Send Json Data to Rest API
+                    try {
+                        sendToRestAPI(management.getList());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                messages.clear();
+
             }
             try {
-                Thread.sleep(10000);
+                Thread.sleep(INTERVAL);
             } catch (InterruptedException e) {
-                LOGGER.info("Interrupted addAmount Thread");
-                return;
+                LOGGER.info("Add Amount Thread interrupt!");
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -68,6 +81,12 @@ public class Main {
         rabbit2.subscribeToAMQP();
         List<JSONObject> messages;
         while (true) {
+            //Get Json Data from the Rest API
+            try {
+                management.setList(getFromRestAPI());
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+            }
             messages = rabbit2.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
@@ -79,18 +98,21 @@ public class Main {
                     p.addTotal(amount);
                     management.eliminate(p);
                     management.setPerson(p);
+                    messages.clear();
 
-                    //Serialize and Send to Broker
-                    rabbit2.publishToAMQP(management.saveList());
-                    LOGGER.info("Successfully added Extra Amount!");
+                    //Send Json Data to Rest API
+                    try {
+                        sendToRestAPI(management.getList());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                messages.clear();
             }
             try {
-                Thread.sleep(10000);
+                Thread.sleep(INTERVAL);
             } catch (InterruptedException e) {
-                LOGGER.info("Interrupted extraAmount Thread");
-                return;
+                LOGGER.info("Extra Amount Thread interrupt!");
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -100,6 +122,11 @@ public class Main {
         rabbit3.subscribeToAMQP();
         List<JSONObject> messages;
         while (true) {
+            try {
+                management.setList(getFromRestAPI());
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+            }
             messages = rabbit3.getMessages();
             if (!messages.isEmpty()) {
                 for (JSONObject message : messages) {
@@ -121,20 +148,62 @@ public class Main {
                     management.eliminate(pp);
                     management.totalDebts(p);
                     management.setPerson(pp);
-
-                    //Serialize and Send to Broker
-                    rabbit3.publishToAMQP(management.saveList());
+                    messages.clear();
                 }
-                messages.clear();
             }
             try {
-                Thread.sleep(10000);
+                Thread.sleep(INTERVAL);
             } catch (InterruptedException e) {
-                LOGGER.info("Interrupted pay Thread");
+                LOGGER.info("Pay Thread interrupt!");
+                Thread.currentThread().interrupt();
             }
-            LOGGER.info("Waiting for Messages...");
         }
     }
 
+    public static List<Person> getFromRestAPI() throws IOException, ParseException {
+        URL url = new URL("http://raspijk.ddns.net:8095/api/persons/list");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.connect();
+        int responseCode = con.getResponseCode();
+        if (responseCode != 200) {
+            throw new RuntimeException("HttpResponseCode " + responseCode);
+        } else {
+            Scanner sc = new Scanner(url.openStream());
+            StringBuilder inline = new StringBuilder();
+            while (sc.hasNext()) {
+                inline.append(sc.nextLine());
+            }
+            LOGGER.info(inline.toString());
+            sc.close();
+            JSONParser jsonParser = new JSONParser();
+            JSONArray jsonArray = (JSONArray) jsonParser.parse(inline.toString());
+            List<Person> list = new ArrayList<>();
+            Gson gson = new Gson();
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                list.add(gson.fromJson(jsonObject.toJSONString(), Person.class));
+            }
+            return list;
+        }
+    }
+
+    public static void sendToRestAPI(List<Person> list) throws IOException {
+        URL url = new URL("http://raspijk.ddns.net:8095/api/persons/list");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setDoOutput(true);
+        con.setRequestMethod("PUT");
+        con.connect();
+        int responseCode = con.getResponseCode();
+        if (responseCode != 200) {
+            throw new RuntimeException("HttpResponseCode " + responseCode);
+        } else {
+            Gson gson = new Gson();
+            String jsonString = gson.toJson(list);
+            OutputStreamWriter out = new OutputStreamWriter(con.getOutputStream());
+            out.write(jsonString);
+            out.close();
+        }
+    }
 
 }

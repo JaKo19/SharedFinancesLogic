@@ -4,3 +4,8 @@
 /data/
 .idea
 sharedfinances.iml
+target/classes
+target/generated-sources
+target/maven-archiver
+target/maven-status
+target/original-sharedfinances-0.0.1-SNAPSHOT.jar

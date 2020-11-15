@@ -1,23 +1,20 @@
 package main.java.com.sharedfinances.logic;
 
-import main.java.com.sharedfinances.database.ListSerialize;
-import main.java.com.sharedfinances.database.PersistenceException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Management {
 
-    private final List<Person> list;
+    private List<Person> list;
     private double tamount;
 
     public Management() {
         list = new ArrayList<>();
     }
 
-    public String saveList() {
-        return ListSerialize.save(list);
+    public void setList(List<Person> list){
+        this.list = list;
     }
 
     public List<Person> getList() {
