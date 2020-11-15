@@ -43,7 +43,7 @@ public class Main {
             try {
                 management.setList(getFromRestAPI());
             } catch (IOException | ParseException e) {
-                e.printStackTrace();
+                LOGGER.info("Failed1");
             }
             //Button message from RabbitMQ
             messages = rabbit1.getMessages();
@@ -62,7 +62,7 @@ public class Main {
                     try {
                         sendToRestAPI(management.getList());
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LOGGER.info("Failed1");
                     }
                 }
 
@@ -189,7 +189,7 @@ public class Main {
     }
 
     public static void sendToRestAPI(List<Person> list) throws IOException {
-        URL url = new URL("http://raspijk.ddns.net:8095/api/persons/list");
+        URL url = new URL("http://raspijk.ddns.net:8095/api/persons/list/all");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setDoOutput(true);
         con.setRequestMethod("PUT");
