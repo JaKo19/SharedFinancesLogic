@@ -12,19 +12,22 @@ import java.util.logging.Logger;
 
 public class RabbitMQ {
 
+    public static final String ADD_AMOUNT_QUEUE = "addamount";
+    public static final String EXTRA_AMOUNT_QUEUE = "extraamount";
+    public static final String PAY_AMOUNT_QUEUE = "pay";
+    public static final String ADD_EVENT_QUEUE = "addevent";
+    public static final String JOIN_EVENT_QUEUE = "joinevent";
+
     private static final Logger LOGGER = Logger.getLogger(RabbitMQ.class.getName());
     private static final String HOST = "raspijk.ddns.net";
     private static final int PORT = 5672;
-    private static final String LISTDATA_QUEUE = "listdata";
     private final List<JSONObject> jsonObjects;
-    private final String queue;
 
-    public RabbitMQ(String queue) {
-        this.queue = queue;
+    public RabbitMQ() {
         jsonObjects = new LinkedList<>();
     }
 
-    public void subscribeToAMQP() {
+    public void subscribeToAMQP(String queue) {
         LOGGER.info("Connecting to " + HOST + ":" + PORT + "...");
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(HOST);
